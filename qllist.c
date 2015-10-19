@@ -3,7 +3,7 @@
    Program:    qllist
    File:       qllist.c
    
-   Version:    V1.0
+   Version:    V1.1
    Date:       18.09.00
    Function:   List queued jobs on farm machines
    
@@ -268,7 +268,7 @@ int DisplayJobs(char *spoolDir, BOOL quiet)
             {
                /* Extract the job number from the name                  */
                *chp = '\0';;
-               sscanf(buffer,"%ld",&jobnum);
+               sscanf(buffer,"%lu",&jobnum);
                
                if(GetJobDetails(spoolDir, jobnum, jobfile, &uid, &gid, 
                                 &nice, username))
@@ -432,17 +432,17 @@ BOOL GetJobDetails(char *spoolDir, ULONG jobnum, char *jobfile,
       TERMINATE(buffer);
       if(buffer[0] == 'U')
       {
-         sscanf(buffer,"%s %ld", junk, &tmp);
+         sscanf(buffer,"%s %lu", junk, &tmp);
          *uid = (uid_t)tmp;
       }
       else if(buffer[0] == 'G')
       {
-         sscanf(buffer,"%s %ld", junk, &tmp);
+         sscanf(buffer,"%s %lu", junk, &tmp);
          *gid = (gid_t)tmp;
       }
       else if(buffer[0] == 'N')
       {
-         sscanf(buffer,"%s %ld", junk, &tmp);
+         sscanf(buffer,"%s %lu", junk, &tmp);
          *nice = (int)tmp;
       }
       else if(buffer[0] == 'J')
@@ -510,7 +510,7 @@ void PrintRunningJobs(FILE *out, RUNFILE *runfiles)
             }
             else if(buffer[0] == 'N')
             {
-               sscanf(buffer,"%s %ld", junk, &nice);
+               sscanf(buffer,"%s %lu", junk, &nice);
             }
             else if(buffer[0] == 'U')
             {

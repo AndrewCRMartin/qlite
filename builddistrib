@@ -1,4 +1,4 @@
-QLDIR=qlite_1.0
+QLDIR=qlite_1.1
 mkdir -p $QLDIR/src/doc
 cp *.c *.h Makefile $QLDIR/src
 cp doc/*.1 $QLDIR/src/doc

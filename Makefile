@@ -11,10 +11,10 @@ SPOOLDIR = /usr/local/spool/qlite
 QLOPTS = -DROOT_ONLY
 
 # For Linux...
-CC = cc -g -pedantic -Wall -DDEF_SPOOLDIR=\"$(SPOOLDIR)\" 
+CC = cc -g -pedantic -Wall -DDEF_SPOOLDIR=\"$(SPOOLDIR)\"
 # For IRIX...
 # CC = cc -fullwarn DEF_SPOOLDIR=\"$(SPOOLDIR)\"
-LINK = cc -static
+LINK = cc 
 EXEFILES = qlsubmit qlrun qllist qlshutdown qlsuspend qllockd 
 OFILES1 = qlsubmit.o qlutil.o qlclient.o
 OFILES2 = qlrun.o qlutil.o qlclient.o

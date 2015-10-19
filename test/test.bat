@@ -1,2 +1,2 @@
-/home/andrew/cprogs/qlite/test/slowprog
+/home/amartin/cprogs/qlite/test/slowprog
 

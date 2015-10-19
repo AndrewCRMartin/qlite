@@ -3,7 +3,7 @@
    Program:    qlsubmit
    File:       qlsubmit.c
    
-   Version:    V1.0
+   Version:    V1.1
    Date:       15.09.00
    Function:   Submit jobs for farm processing
    
@@ -361,7 +361,7 @@ ULONG SubmitJob(char *jobfile, char *spoolDir, uid_t uid, gid_t gid,
    sprintf(infofile,"%s/.qllastjob", spoolDir);
    if((fp=fopen(infofile, "r"))!=NULL)
    {
-      fscanf(fp,"%ld", &jobnum);
+      fscanf(fp,"%lu", &jobnum);
       fclose(fp);
    }
    if(++jobnum == 0L)

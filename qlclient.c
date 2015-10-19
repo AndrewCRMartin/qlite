@@ -3,7 +3,7 @@
    Program:    QLite
    File:       qlclient.c
    
-   Version:    V1.0
+   Version:    V1.1
    Date:       04.10.00
    Function:   Client routines for querying the qllockd daemon
    

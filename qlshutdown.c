@@ -3,7 +3,7 @@
    Program:    qlshutdown
    File:       qlshutdown.c
    
-   Version:    V1.0
+   Version:    V1.1
    Date:       18.09.00
    Function:   Shuts down the QLite daemon on a specified machine giving
                the current job time to finish

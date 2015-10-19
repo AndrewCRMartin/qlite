@@ -3,11 +3,11 @@
    Program:    qllockd
    File:       qllockd.c
    
-   Version:    V1.0
-   Date:       04.10.00
+   Version:    V1.1
+   Date:       25.11.02
    Function:   Daemon to handle locking between machines in the cluster
    
-   Copyright:  (c) University of Reading / Dr. Andrew C. R. Martin 2000
+   Copyright:  (c) University of Reading / Dr. Andrew C. R. Martin 2000-2
    Author:     Dr. Andrew C. R. Martin
    Address:    School of Animal and Microbial Sciences,
                The University of Reading,
@@ -50,6 +50,7 @@
    Revision History:
    =================
    V1.0  04.10.00  Original   By: ACRM
+   V1.1  25.11.02  Added code to allow a SIGHUP to break a stuck lock
 
 *************************************************************************/
 /* Includes
@@ -59,6 +60,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <signal.h>
 #define __STRICT_ANSI__
 #include <netdb.h>
 #undef __STRICT_ANSI__
@@ -70,6 +72,7 @@
 #else
 #  include <limits.h>
 #endif
+#include <errno.h>
 
 #include "qlutil.h"
 
@@ -87,7 +90,8 @@
 */
 char gLockholder[MAXBUFF];
 int  gClientID = 0,
-     gDebug    = 0;
+     gDebug    = 0,
+     gStatus   = STATUS_UNLOCKED;
 
 
 /************************************************************************/
@@ -104,12 +108,14 @@ void HandleCommand(int sock, char *line, char *clientHostname);
 BOOL CorrectMachine(char *clientHostname, int clientID);
 void Usage(void);
 void WaitForOtherChars(int sock);
+void HandleHUP(int signum);
+
 
 /************************************************************************/
 int main(int argc, char **argv)
 {
    int port = 0, 
-      s;
+       s, err;
    char spoolDir[PATH_MAX];
    RUNFILE *runfiles = NULL;
 
@@ -133,8 +139,15 @@ int main(int argc, char **argv)
          
          if((s = CreateBoundListeningSocket(SERVICENAME, port)) < 0)
             error();
+
+         /* Install signal handler */
+         signal(SIGHUP, HandleHUP);
          
-         AcceptConnections(runfiles, s);
+         if((err=AcceptConnections(runfiles, s)) < 0)
+         {
+            fprintf(stderr,"accept() failed!, Error %d\n", errno);
+            perror(NULL);
+         }
       }
    }
    else
@@ -175,8 +188,13 @@ int CreateBoundListeningSocket(char *service, int port)
    sockin.sin_addr.s_addr=htonl(INADDR_ANY);
    
    /* Step 3 - bind address to the port                                 */
-   if (bind(s, &sockin, sizeof(sockin)) < 0)
+#ifdef __linux__
+   if (bind(s, (__CONST_SOCKADDR_ARG)&sockin, sizeof(sockin)) < 0)
       return(-1);
+#else
+   if (bind(s, (__CONST_SOCKADDR_ARG)&sockin, sizeof(sockin)) < 0)
+      return(-1);
+#endif
 
    /* Step 4 - Listen for connections                                   */
    if (listen(s,QUELEN) < 0) 
@@ -198,8 +216,17 @@ int AcceptConnections(RUNFILE *runfiles, int s)
    
    for (;;) 
    {
+#ifdef __linux__
+      if ((g=accept(s,(__SOCKADDR_ARG)&client,&len)) < 0) 
+      {
+         return(g);
+      }
+#else
       if ((g=accept(s,&client,&len)) < 0) 
-         return(-1);
+      {
+         return(g);
+      }
+#endif
       
       if(ValidMachine(runfiles, g, client, clientHostname))
       {
@@ -298,13 +325,12 @@ BOOL ValidMachine(RUNFILE *runfiles, int socket,
 /************************************************************************/
 void HandleCommand(int sock, char *line, char *clientHostname)
 {
-   static int status = STATUS_UNLOCKED;
    int id;
    
    if(!strncmp(line,"STATUS",6))
    {
       char buffer[80];
-      sprintf(buffer,"Status = %d\n", status);
+      sprintf(buffer,"Status = %d\n", gStatus);
       printf("%s",buffer);
       write(sock,buffer,strlen(buffer)+1);
    }
@@ -318,7 +344,7 @@ void HandleCommand(int sock, char *line, char *clientHostname)
       }
       else
       {
-         if(status == STATUS_LOCKED)
+         if(gStatus == STATUS_LOCKED)
          {
             if(gDebug)
                printf("Already locked\n");
@@ -326,7 +352,7 @@ void HandleCommand(int sock, char *line, char *clientHostname)
          }
          else
          {
-            status = STATUS_LOCKED;
+            gStatus = STATUS_LOCKED;
             strcpy(gLockholder, clientHostname);
             gClientID = id;
             if(gDebug)
@@ -345,11 +371,11 @@ void HandleCommand(int sock, char *line, char *clientHostname)
       }
       else
       {
-         if(status == STATUS_LOCKED)
+         if(gStatus == STATUS_LOCKED)
          {
             if(CorrectMachine(clientHostname, id))
             {
-               status = STATUS_UNLOCKED;
+               gStatus = STATUS_UNLOCKED;
                
                if(gDebug)
                   printf("Released lock\n");
@@ -481,7 +507,7 @@ void error(void)
 /************************************************************************/
 void Usage(void)
 {
-   fprintf(stderr,"\nqllockd V1.0 (c) Dr. Andrew C.R. Martin, University \
+   fprintf(stderr,"\nqllockd V1.1 (c) Dr. Andrew C.R. Martin, University \
 of Reading\n");
 
    fprintf(stderr,"\nUsage: qllockd [-p portnum] [-s spooldir]\n");
@@ -507,3 +533,27 @@ cluster (in fact it\n");
    fprintf(stderr,"may be run on a machine not in the cluster \
 itself)\n\n");
 }
+
+
+/************************************************************************/
+void HandleHUP(int signum)
+{
+   if(gStatus == STATUS_LOCKED)
+   {
+      if(gDebug)
+      {
+         fprintf(stderr,"Lock held by %s released by SIGHUP\n", 
+                 gLockholder);
+      }
+      
+      gStatus = STATUS_UNLOCKED;
+      signal(SIGHUP, HandleHUP);
+   }
+   else if(gDebug)
+   {
+      fprintf(stderr,"No lock held\n");
+   }
+}
+
+
+

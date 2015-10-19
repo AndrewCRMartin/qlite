@@ -3,7 +3,7 @@
    Program:    qlsubmit / qlrun
    File:       qlutil.c
    
-   Version:    V1.0
+   Version:    V1.1
    Date:       15.09.00
    Function:   Utility routines for QLite
    
@@ -129,7 +129,7 @@ void DeleteLockFile(char *spoolDir)
 
    if((fp=fopen(lockfile,"r"))==NULL)
       return;
-   fscanf(fp, "%ld\n", &oldpid);
+   fscanf(fp, "%lu\n", &oldpid);
    fclose(fp);
 
    if(oldpid == (ULONG)getpid())

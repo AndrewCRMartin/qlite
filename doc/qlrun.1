@@ -17,9 +17,9 @@ typically it will be run twice. To set up two queues one with higher
 priority than another, one could do:
 .sp
 .ce
-qlrun -c 1 -n  0 -i 1
+qlrun -c 1 -n  0 -p 1
 .ce
-qlrun -c 2 -n 19 -i 2
+qlrun -c 2 -n 19 -p 2
 .sp
 This will create one queue for the machine as part of cluster 1 with a
 process instance number of 1 which runs at the nice level of the

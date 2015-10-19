@@ -3,7 +3,7 @@
    Program:    qlrun
    File:       qlrun.c
    
-   Version:    V1.0
+   Version:    V1.1
    Date:       15.09.00
    Function:   Run queued jobs on farm machines
    
@@ -448,7 +448,7 @@ ULONG JobWaiting(char *spoolDir)
          {
             /* Extract the job number from the name                     */
             *chp = '\0';
-            sscanf(buffer,"%ld",&jobnum);
+            sscanf(buffer,"%lu",&jobnum);
             break;
          }
       }
@@ -580,17 +580,17 @@ BOOL GetJobInfo(char *jobname, uid_t *uid, gid_t *gid, int *nice,
       TERMINATE(buffer);
       if(buffer[0] == 'U')
       {
-         sscanf(buffer,"%s %ld", junk, &tmp);
+         sscanf(buffer,"%s %lu", junk, &tmp);
          *uid = (uid_t)tmp;
       }
       else if(buffer[0] == 'G')
       {
-         sscanf(buffer,"%s %ld", junk, &tmp);
+         sscanf(buffer,"%s %lu", junk, &tmp);
          *gid = (gid_t)tmp;
       }
       else if(buffer[0] == 'N')
       {
-         sscanf(buffer,"%s %ld", junk, &tmp);
+         sscanf(buffer,"%s %lu", junk, &tmp);
          *nice = (int)tmp;
       }
       else if(buffer[0] == 'J')

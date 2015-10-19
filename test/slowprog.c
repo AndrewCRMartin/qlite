@@ -3,7 +3,7 @@
 int main(int argc, char **argv)
 {
 #ifdef SLEEP
-   sleep(10);
+   sleep(60);
 #else
    int i, j, k;
 

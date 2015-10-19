@@ -49,7 +49,7 @@ You must create two files in the spool directory:
 
 .B The first file
 is called
-.I .machinelist
+.I .machinenames
 in the spool directory and lists the local machine names (not fully
 qualified domain names) of the machines in the cluster. This is used
 by
@@ -75,7 +75,7 @@ daemon running as instance 1 while sapc77 has two
 .I qlrun(1) 
 daemons running as instance 1 and 2. The instance number for the
 daemon is specified by the 
-.B -i
+.B -p
 flag to 
 .I qlrun(1)
 .sp
@@ -139,9 +139,9 @@ can create a queues of different priority.
 For example, run the daemon on one machine twice:
 .sp
 .ce
-qlrun -c 1 -n  0 -i 1
+qlrun -c 1 -n  0 -p 1
 .ce
-qlrun -c 2 -n 19 -i 2
+qlrun -c 2 -n 19 -p 2
 .sp
 This will create one queue for the machine as part of cluster 1 with
 process instance number 1 which

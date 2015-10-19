@@ -17,9 +17,6 @@ qlsubmit jobfile
 where 
 .I jobfile
 is a script file with commands to be executed.
-.B NOTE!
-This script file may not contain commands that are aliases - you
-must use the full path/command name.
 
 .SH OPTIONS
 .sp
@@ -68,13 +65,5 @@ QLite(1), qlrun(1), qllist(1), qlshutdown(1), qllockd(1), qlsuspend(1)
 None known :-) It would be nice to have a way of limiting the
 CPU time and optionally of mailing the submitter when a job
 has finished or been killed as a result of over-running
-allocated CPU time. The script file may not contain commands that
-are aliases (e.g. if you had an alias that ran a program by
-specifying some long path and the name of the program it would
-not work). This is a 'feature' of the shell I guess... Another feature
-is that you may only submit jobs from a machine that is in the cluster
-(i.e. it is listed in the .machinelist file). This is done as a 
-security measure,
-
-
+allocated CPU time.
 
