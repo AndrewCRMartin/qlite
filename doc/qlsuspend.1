@@ -1,0 +1,44 @@
+.TH QLSUSPEND 1 "QLite V1.0"
+.SH NAME
+qlsuspend \- Suspend all the qlrun daemons in the QLite queueing system
+.SH SYNOPSIS
+.B qlsuspend 
+.I [-h] [-s spooldir] [-r]
+.SH DESCRIPTION
+.I Qlsuspend
+creates a file in the spool directory for the appropriate cluster
+which tells the 
+.I qlrun(1) 
+daemon not to run any more jobs (the current job finishes first). This
+is mainly useful for debugging. The daemons are resumed by running
+.I qlsuspend
+with the
+.B -r
+flag.
+.B This command must be run as root.
+
+.SH OPTIONS
+.sp
+.B -h
+Print a help message.
+.sp
+.B -s spooldir
+Specify a spool directory rather than the compile time default
+(usually /usr/local/spool/qlite). Note that the default may also be
+overridden using the 
+.I QLSPOOLDIR 
+environment variable. Anything
+specified on the command line will override the environment variable. 
+.sp
+.B -r
+Resume running of processes.
+
+.sp
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlrun(1), qllist(1), qlsubmit(1), qllockd(1), qlshutdown(1)
+.SH BUGS
+None known :-)
+
+

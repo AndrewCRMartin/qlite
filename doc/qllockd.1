@@ -1,0 +1,71 @@
+.TH QLRUN 1 "QLite V1.0"
+.SH NAME
+qllockd \- locking daemon for the QLite queueing system
+.SH SYNOPSIS
+.B qllockd
+.I [-h] [-d] [-s spooldir] [-p port]
+.SH DESCRIPTION
+.I Qllockd
+runs as a daemon to control access to a spool directory. QLite
+programs ask the daemon for a lock on the directory. 
+Typically it is just run as
+.sp
+.ce
+qllockd
+.sp
+It is run on only one machine in the farm.
+
+The spool directory is specified only so that the daemon can find the
+file 
+.I .machinelist
+This contains a list of the machines which are allowed to request
+locks.
+
+If you are running multiple clusters, then you will probably want to
+run
+.I qllockd
+for each cluster. To do so, you need to place each instance of 
+.I qllockd
+on a separate machine, or make them listen on different ports.
+
+The file
+.I .qllockdaemon
+which resides in the cluster-specific spool directory identifies the
+machine and port on which the appropriate lock daemon is running.
+
+.SH OPTIONS
+.sp
+.B -d
+Run in interactive debug mode rather than as a daemon
+.sp
+.B -h
+Print a help message.
+.sp
+.B -p portnum
+Specify the port number of the lock daemon. See
+.I QLite(1)
+for details.
+.sp
+.B -s spooldir
+Specify the spool directory rather than the compile time default
+(usually /usr/local/spool/qlite). This is used for finding the file
+.I .machinelist
+It is not the location of the individual cluster's spool directory.
+.sp
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlsubmit(1), qllist(1), qlshutdown(1), qlrun(1), qlsuspend(1)
+.SH BUGS
+It is possible to telnet into 
+.I qllockd
+from any machine on the cluster. This will prevent anyone else from
+accessing the daemon. The fix would be to fork() off a separate
+process to handle each connection, but this requires use of shared
+memory to access the flag which 
+.I qllockd
+maintains to say whether access is locked. It all becomes terribly
+complex for a quick hack!
+
+Also there is no way to re-read the machine list without killing and
+restarting the daemon. (It should respond to a SIGHUP instead.)

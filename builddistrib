@@ -1,0 +1,9 @@
+QLDIR=qlite_1.0
+mkdir -p $QLDIR/src/doc
+cp *.c *.h Makefile $QLDIR/src
+cp doc/*.1 $QLDIR/src/doc
+cp INSTALL $QLDIR
+cp COPYING.DOC $QLDIR
+tar -zcvf qlite.tgz $QLDIR
+rm -rf $QLDIR
+md5sum qlite.tgz

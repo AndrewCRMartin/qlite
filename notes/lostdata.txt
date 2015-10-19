@@ -1,0 +1,51 @@
+Closing a socket: if SO_LINGER has not been called on a socket, then
+close() is not supposed to discard data. This is true on SVR4.2 (and,
+apparently, on
+all non-SVR4 systems) but apparently not on SVR4; the use of either
+shutdown() or SO_LINGER seems to be required to guarantee delivery of
+all data.
+
+   struct linger mylinger;
+
+
+mylinger.l_onoff = 0;
+mylinger.l_linger = 5;
+
+
+
+result = setsockopt(g,            /* socket affected */
+SOL_SOCKET,     /* set option at TCP level */
+SO_LINGER,     /* name of option */
+(char *) &mylinger,  /* the cast is historical
+cruft */
+sizeof(mylinger));
+
+
+(Try it on both the main socket and the accept() returned socket
+)
+
+Try:
+shutdown(g,2);
+
+instead of close(g);
+
+
+
+if(!fork())
+{
+/* Child */
+sleep(1);
+close(g);
+exit(0);
+}
+
+close(g);
+
+
+
+
+
+What if the client closes the socket instead of the server?
+Check with netstat what happens...
+
+

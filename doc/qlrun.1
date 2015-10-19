@@ -1,0 +1,99 @@
+.TH QLRUN 1 "QLite V1.0"
+.SH NAME
+qlrun \- daemon for the QLite queueing system
+.SH SYNOPSIS
+.B qlrun 
+.I [-h] [-d] [-s spooldir] [-c cluster] [-n maxnice] [-i pinum] [-t timelimit] [-p port] [-l lockhost]
+.SH DESCRIPTION
+.I Qlrun
+runs as a daemon looking for jobs to be run on a farm machine.
+Typically it is just run as
+.sp
+.ce
+qlrun 
+.sp
+It is run on each farm machine. If a machine has two processors then
+typically it will be run twice. To set up two queues one with higher
+priority than another, one could do:
+.sp
+.ce
+qlrun -c 1 -n  0 -i 1
+.ce
+qlrun -c 2 -n 19 -i 2
+.sp
+This will create one queue for the machine as part of cluster 1 with a
+process instance number of 1 which runs at the nice level of the
+requesting job and a second queue with a process instance number of 2
+which never runs at higher than nice 19.
+
+.SH OPTIONS
+.sp
+.B -c cluster
+Specify a cluster number. Machines can be divided into separate
+clusters. See
+.I QLite(1)
+for details.
+.sp
+.B -d
+Run in interactive debug mode rather than as a daemon
+.sp
+.B -h
+Print a help message.
+.sp
+.B -i pinum
+Specify the process instance number. By default this is 1. This is
+used if you have more than one daemon running on the same machine and
+is used by 
+.I qllist(1)
+to identify running jobs. Simply set to 2, 3, 4, etc. for further
+instances of the daemon running on the machine. Entries for each
+instance number must appear in
+.B $(QLSPOOLDIR)/.machinelist
+See
+.I QLite(1)
+for details.
+.sp
+.B -l lockhost
+Specify the host running the lock daemon. See
+.I QLite(1)
+for details.
+.sp
+.B -n maxnice
+Specify a maximum allowed nice level for jobs run by the daemon. By
+default this is 0. When jobs are submitted, they request a default
+nice level of 10 (though this can be overridden by the -n option to
+.I qlsubmit(1)
+). If
+.I maxnice
+is set to 19 for example, then the job will run at a nice level of 19
+instead whatever the request from
+.I qlsubmit(1)
+
+Similarly if 
+.I maxnice 
+has been set at 10, a job submitted with a request for a
+nice level of 19 will run at that nice level while once submitted
+requesting a nice level of 5 will still run at a nice level of 10.
+.sp
+.B -p portnum
+Specify the port number of the lock daemon. See
+.I QLite(1)
+for details.
+.sp
+.B -s spooldir
+Specify a spool directory rather than the compile time default
+(usually /usr/local/spool/qlite)
+.sp
+.B -t timelimit
+Specify a timelimit (in minutes) for jobs running on this queue. If
+this limit is exceeded, then the job will be terminated and an EMail
+message will be sent to the submitter's username.
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlsubmit(1), qllist(1), qlshutdown(1), qllockd(1), qlsuspend(1)
+.SH BUGS
+None known :-) It would be nice to make it possible to specify
+an EMail address for messages when allocated CPU time has been
+exceeded rather than guessing the address.
+

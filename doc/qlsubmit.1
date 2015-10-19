@@ -1,0 +1,80 @@
+.TH QLSUBMIT 1 "QLite V1.0"
+.SH NAME
+qlsubmit \- Submit a job for processing by the QLite queueing system
+.SH SYNOPSIS
+.B qlsubmit 
+.I [-h] [-d] [-q] [-s spooldir] [-c cluster] [-n nice] jobfile
+.SH DESCRIPTION
+.I Qlsubmit
+queues a job to be run by the 
+.I qlrun(1) 
+daemon on one of the farm machines.
+Typically it is just run as
+.sp
+.ce
+qlsubmit jobfile
+.sp
+where 
+.I jobfile
+is a script file with commands to be executed.
+.B NOTE!
+This script file may not contain commands that are aliases - you
+must use the full path/command name.
+
+.SH OPTIONS
+.sp
+.B -h
+Print a help message.
+.sp
+.B -d
+Delete the script file once it has been queued.
+.sp
+.B -q
+Run quietly - do not report the job number.
+.sp
+.B -s spooldir
+Specify a spool directory rather than the compile time default
+(usually /usr/local/spool/qlite). Note that the default may also be
+overridden using the 
+.I QLSPOOLDIR 
+environment variable. Anything
+specified on the command line will override the environment variable. 
+.sp
+.B -c cluster
+Specify a cluster number. Machines can be divided into separate
+clusters. See
+.I QLite(1)
+for details. Note that the default may also be
+overridden using the 
+.I QLCLUSTER 
+environment variable. Anything
+specified on the command line will override the environment variable. 
+.sp
+.B -n nice
+Specify a requested nice level for this job. By
+default this is 10. Note that the 
+.I qlrun(1)
+daemon may restrict the nice level. For example
+if 
+.I qlrun(1)
+allows a maximum nice of 10, a job submitted with a request for a
+nice level of 19 will run at that nice level, while once submitted
+requesting a nice level of 5 will still run at a nice level of 10.
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlrun(1), qllist(1), qlshutdown(1), qllockd(1), qlsuspend(1)
+.SH BUGS
+None known :-) It would be nice to have a way of limiting the
+CPU time and optionally of mailing the submitter when a job
+has finished or been killed as a result of over-running
+allocated CPU time. The script file may not contain commands that
+are aliases (e.g. if you had an alias that ran a program by
+specifying some long path and the name of the program it would
+not work). This is a 'feature' of the shell I guess... Another feature
+is that you may only submit jobs from a machine that is in the cluster
+(i.e. it is listed in the .machinelist file). This is done as a 
+security measure,
+
+
+

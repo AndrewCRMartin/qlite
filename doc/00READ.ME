@@ -1,0 +1,26 @@
+Some more examples
+
+Suppose you have a dual processor machine on which you want to create
+a normal low priority queue and a second high priority queue. You
+would use 4 instances of qlrun:
+
+qlrun -c 1 -n 0 -i 1      # high priority queue for one CPU - submit jobs to
+                          # cluster 1
+qlrun -c 1 -n 0 -i 2      # high priority queue for other CPU - submit jobs to
+                          # cluster 1
+qlrun -n 19 -i 3          # low priority queue for one CPU - submit jobs to the
+                          # default cluster
+qlrun -n 19 -i 4          # low priority queue for other CPU - submit jobs to
+                          # the default cluster
+
+So any jobs run on the default cluster will get niced out by jobs submitted to
+cluster 1.
+
+Supposing this machine is called node1, then the .machinelist file in
+the spool directory will contain:
+
+   node1 1
+   node1 2
+   node1 3
+   node1 4
+

@@ -1,0 +1,130 @@
+                              QLite V1.0
+                              ==========
+
+       (c) 2000, Dr. Andrew C.R. Martin, University of Reading
+
+                         andrew@bioinf.org.uk
+                      a.c.r.martin@reading.ac.uk
+
+
+QLite is a very simple batch queueing system for distributing jobs
+across a farm of machines. It does not have the same advanced features
+as a full batch queueing system such as NQS, DQS, or PBS, but is very
+simple to use and install and has very low latency between jobs making
+it ideal for queueing many thousands of short jobs.
+
+Installation Instructions
+-------------------------
+
+1. Enter the src subdirectory
+
+2. Edit Makefile to reflect where you wish to install QLite.
+   Binaries:   DESTDIR   (typically /usr/local/bin)
+   Man pages:  MANDIR    (typically /usr/local/man/man1)
+
+   Also set SPOOLDIR to be a directory mounted using NFS on all
+   machines in the cluster. This directory must be writable by all
+   machines and must be exported from the server with no_root_squash
+   set in /etc/exports. You might therefore wish to export this
+   directory separately. 
+
+   Suitable locations include /usr/local/spool/qlite and 
+   /home/qlite/spool
+
+   There are some other options which may be controlled in the Makefile.
+   See 'Compile-time Options', below for more information.
+
+3. Type:
+      make
+   to compile the programs
+
+4. As root, type:
+      make install
+   to install them in the directories created in Step 1. This will
+   create the directories if necessary and will create the spool
+   directory if it doesn't exist.
+
+5. Create the .machinelist and .qllockdaemon files in the spool
+   directory
+
+Spool Directories
+-----------------
+
+NOTE: The spool directories must be owned by root:root and have
+permissions 755 (i.e. u=rwx, go=rx). It *must not* be writable by
+anyone else.
+
+If you wish to split farm machines into separate clusters, you should
+create sub-directories within the main spool directory for each
+cluster you wish to create. These are given numeric names from 1 to
+100. Again these must be owned by root:root with permissions 755.
+
+Thus, assuming your main spool directory is /usr/local/qlite/spool, to
+create Cluster 1, as root do:
+
+      mkdir /usr/local/qlite/spool/1
+      chmod 755 /usr/local/qlite/spool/1
+
+
+Environment Variables
+---------------------
+
+All the programs except for qlrun, will look at the QLSPOOLDIR
+environment variable to override the compile-time default spool
+directory. This in turn is overridden by the command line switch -s in
+all programs.
+
+qlsubmit will also look at the QLCLUSTER environment variable to find
+a default cluster to submit to.
+
+Machine List
+------------
+
+If you are using the qllockd daemon-based locking (which is the
+default) or you wish to be able to list running jobs with qllist, you
+need to create a file in the spool directory called .machinelist
+This contains entries of the form:
+   sapc13 1
+   sapc77 1
+   sapc77 2
+The above example shows that sapc13 has one instance of qlrun running
+while sapc77 has two. In the latter case, qlrun would be run twice on
+sapc77 once with 'qlrun -p 1' and once with 'qlrun -p 2' to identify
+the two processes.
+
+Lock Daemon File
+----------------
+
+This is required if you are using the daemon-based locking (which is
+the default). It is placed in the spool directory for a given cluster
+and contains a single line identifying the host running the lock
+daemon for that cluster and the port on which it is running. If you
+set the port number to zero, the default port will be used. An example
+file is:
+   sapc13 0
+This indicates that the lock daemon is running on sapc13 (you may also
+use a fully-qualified domain name or an IP address) using the default
+port. 
+
+Compile-time Options
+--------------------
+1. ROOT_ONLY
+This controls who is allowed to run the qlsuspend program. If defined,
+only root can run it; otherwise anyone can run it to suspend the
+cluster. 
+
+2. FILE_BASED_LOCKING
+By default, locking of access to the spool directory is controlled by
+the qllockd locking daemon. If this option is chosen, locking is
+controlled through a file in the spool directory. The qllockd method
+does allow anyone on the cluster to request a lock manually (through
+telnet) and thus deny access to the farm. File-based locking prevents
+this, but causes problems as the cluster gets larger or the length of
+the jobs gets shorter owning to the possibility of two machines
+writing to the lock file at the same time.
+
+3. REQUIRE_ACK
+Makes the qllockd daemon require a specific acknowledgement (ACK or
+QUIT) before closing the socket. Mainly useful for debugging via
+telnet. 
+

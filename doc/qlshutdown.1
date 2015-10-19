@@ -1,0 +1,72 @@
+.TH QLSHUTDOWN 1 "QLite V1.0"
+.SH NAME
+qlshutdown \- Shut down the qlrun daemon in the QLite queueing system
+.SH SYNOPSIS
+.B qlshutdown 
+.I [-h] [-w] [-s spooldir] [-c cluster] [node]
+.SH DESCRIPTION
+.I Qlshutdown
+creates a file in the spool directory for the appropriate cluster
+which tells the 
+.I qlrun(1) 
+daemon on a specified node to exit when it has finished processing the
+current job. If 
+.I node
+is not specified, then the node from which the command is issued is
+assumed. The daemon always waits for the currently running job to
+finish before it shuts down.
+.B This command must be run as root.
+Typically it is just run as
+.sp
+.ce
+qlshutdown 
+.sp
+or, to shutdown the daemon on a different node as
+.sp
+.ce
+qlshutdown sapc122
+.sp
+Either the short node name or the fully qualified domain name may be
+used. The numeric IP address may not be used.
+.SH OPTIONS
+.sp
+.B -h
+Print a help message.
+.sp
+.B -w
+This program waits until the daemon has been shut down. This is useful
+in the shutdown script for a computer.
+.sp
+.B -s spooldir
+Specify a spool directory rather than the compile time default
+(usually /usr/local/spool/qlite). Note that the default may also be
+overridden using the 
+.I QLSPOOLDIR 
+environment variable. Anything
+specified on the command line will override the environment variable. 
+.sp
+.B -c cluster
+Specify a cluster number. Machines can be divided into separate
+clusters. See
+.I QLite(1)
+for details. Only jobs in the queue for that cluster will be listed.
+By default, all jobs in all clusters are listed.
+.sp
+.B node
+Shut down the daemon on the specified node. If no node is specified,
+then the daemon on this node is shutdown. Note that one can shut
+down a daemon on a node to which one does not have root access.
+.sp
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlrun(1), qllist(1), qlsubmit(1), qllockd(1), qlsuspend(1)
+.SH BUGS
+Actually this is a feature... One can shutdown the daemon on a node to
+which one does not have root access if one has root access on one of
+the other nodes which shares the spool directory. It is assumed that
+all machines are being used in a trusted environment and that a root
+user on one machine will also be a root user on every other machine
+where the spool directory is mounted.
+
+

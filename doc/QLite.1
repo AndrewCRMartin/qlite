@@ -1,0 +1,180 @@
+.TH QLLITE 1 "QLite V1.0"
+.SH NAME
+QLite \- A simple queueing system for use on a farm of machines
+.SH DESCRIPTION
+.I QLite
+is a very simple batch queueing system for distributing jobs across a
+farm of machines. It does not have the same advanced features as a
+full batch queueing system such as NQS, DQS, or PBS, but is very
+simple to use and install and has very low latency between jobs making
+it ideal for queueing many thousands of short jobs.
+
+It consists of the following programs:
+
+.B qlsubmit
+Submits a script file to the QLite queue(s)
+.sp
+.B qllist
+List jobs in the 
+.I QLite 
+queue(s)
+.sp
+.B qlrun
+The daemon run on each node which performs processing of jobs
+.sp
+.B qlshutdown
+Shutdown the daemon on a node after waiting for the current job to
+finish. 
+.sp
+.B qlsuspend
+Suspends all daemons.
+.sp
+.B qllockd
+A daemon which controls locking of access to the spool directory.
+
+.SH INSTALLATION
+Installation is very straightforward. Simply place the programs in the
+path somewhere and make sure that qlsubmit is owned by root and has
+setuid permissions.
+
+Create the spool directory owned by root with 755 permissions.
+
+The 
+.I make install
+command will do these steps for you. Alter the destination directories
+in the Makefile as required before running
+.I make install
+
+You must create two files in the spool directory:
+
+.B The first file
+is called
+.I .machinelist
+in the spool directory and lists the local machine names (not fully
+qualified domain names) of the machines in the cluster. This is used
+by
+.I qllist(1)
+to list running jobs and by the lock daemon
+.I qllockd(1)
+to find out which machines are allowed to ask for a lock.
+
+This list
+should contain local machine names only, not fully qualified domain
+names together with process run instance numbers. For example:
+.sp
+.ce
+sapc13 1
+.ce
+sapc77 1
+.ce
+sapc77 2
+.sp
+would specify that sapc13 has a 
+.I qlrun(1)
+daemon running as instance 1 while sapc77 has two 
+.I qlrun(1) 
+daemons running as instance 1 and 2. The instance number for the
+daemon is specified by the 
+.B -i
+flag to 
+.I qlrun(1)
+.sp
+.sp
+
+.B The second file 
+is called
+.I .qllockdaemon
+in the spool directory for an individual cluster. This contains a
+single line specifying which machine is running the lock daemon for
+this cluster. The file contains a single line with the name of the
+machine running 
+.I qllockd(1)
+together with the port number on which it is running. If the port
+number is 0, then the default port it used. For example:
+.sp
+.ce
+sapc13 0
+.sp
+would specify that sapc13 is running the lock daemon on the default port.
+
+If you do not create this file, then the 
+.B -l
+and
+.B -p
+flags will have to be specified to 
+.I qlrun(1)
+and
+.I qlsubmit(1)
+in order to specify on which machine (and port) the lock daemon is
+running. 
+
+.SH DETAILS
+.I QLite
+simply copies a script file across to a spool directory which is
+mounted by all machines in the farm. It also creates a control file
+with information about the user who has submitted the job and the nice
+level at which it is to be run.
+
+If a machine has two processors, then the 
+.I qlrun(1)
+daemon is simply run twice on that machine.
+
+.I QLite
+supports the concept of separate clusters of machines sharing the same
+queuing space. One machine may be a member of more than one
+cluster. In practice, separate cluster are achieved by having
+subdirectories in the spool directory. Clusters are given a number
+from 1-100 (cluster 0 is the default cluster where jobs are queued in
+the main spool directory).
+
+Users can submit jobs to a chosen cluster for processing. There is
+currently no control over which user may submit to which cluster.
+
+Multiple queues with different priorities can effectively be created
+on a single machines. By making a machine a member of two clusters (by
+running the daemon twice with different cluster numbers specified),
+but allowing different maximum nice levels on the two clusters, one
+can create a queues of different priority.
+
+For example, run the daemon on one machine twice:
+.sp
+.ce
+qlrun -c 1 -n  0 -i 1
+.ce
+qlrun -c 2 -n 19 -i 2
+.sp
+This will create one queue for the machine as part of cluster 1 with
+process instance number 1 which
+runs at the nice level of the requesting job and a second queue with
+process instance number 2 which never runs at higher than nice 19.
+
+Jobs submitted to cluster 1 will run at the requested nice level on this
+machine (their nice level may be limited differently on other other
+nodes in the farm), but jobs submitted to cluster 2 will always run at
+a nice level of 19 on this machine, though of course they may run at
+much higher priority nice levels on other nodes.
+
+
+.SH OPTIONS
+When compiling and installing 
+.I QLite
+you have a few options. You can control whether all users are allowed
+to call 
+.I qlsuspend(1)
+or just the superuser. You can choose to use file-based locking
+rather than using the 
+.I qllockd(1)
+lock daemon. You can also ask that the lock daemon obtains real
+acknowledgement packets from the process requesting a lock.
+
+For details see the INSTALL document.
+
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlsubmit(1), qlrun(1), qlshutdown(1), qllockd(1), qlsuspend(1)
+.SH BUGS
+None known :-) However, you should trust all the users on your system
+not to telnet into the qlockd(1) daemon since this will block it from
+accepting lock requests.
+

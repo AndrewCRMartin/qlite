@@ -1,0 +1,7 @@
+http://www.ntua.gr/sock-faq/sfaq.html
+http://www.cs.cf.ac.uk/Dave/C/node32.html
+http://www.uwo.ca/its/doc/courses/notes/socket/
+http://www.ibiblio.org/pub/Linux/docs/HOWTO/other-formats/html_single/Net-HOWTO.html
+http://www.lcg.org/sock-faq/ssl.tar.gz
+
+

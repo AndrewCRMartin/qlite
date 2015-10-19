@@ -1,0 +1,93 @@
+.TH QLLIST 1 "QLite V1.0"
+.SH NAME
+qllist \- List waiting jobs in the QLite queueing system
+.SH SYNOPSIS
+.B qllist 
+.I [-h] [-t] [-s spooldir] [-c cluster] [-r]
+.SH DESCRIPTION
+.I Qllist
+lists jobs waiting to run on a set of farm machines. By default, it 
+.I does not
+list jobs currently running. The
+.I -r
+flag causes running jobs to be displayed instead. Typically it is just run as
+.sp
+.ce
+qllist 
+.sp
+or, to get only the numeric total, it is run as
+.sp
+.ce
+qllist -t
+.sp
+By default, all jobs in all clusters are listed. This can be
+overridden with the
+.I -c
+option.
+.SH OPTIONS
+.sp
+.B -c cluster
+Specify a cluster number. Machines can be divided into separate
+clusters. See
+.I QLite(1)
+for details. Only jobs in the queue for that cluster will be listed.
+By default, all jobs in all clusters are listed.
+.sp
+.B -h
+Print a help message.
+.sp
+.B -r
+Display only running jobs rather than queued jobs. For this to work,
+a file 
+.B $(QLSPOOLDIR)/.machinelist
+must be created.
+.sp
+.B -s spooldir
+Specify a spool directory rather than the compile time default
+(usually /usr/local/spool/qlite). Note that the default may also be
+overridden using the 
+.I QLSPOOLDIR 
+environment variable. Anything
+specified on the command line will override the environment variable. 
+.sp
+.B -t
+Print just the number of jobs left in the queue rather than details of
+each job
+.sp
+
+.SH NOTE!
+To list running jobs, you must create the file 
+.I .machinenames
+in the spool directory to list the machines in the cluster. This list
+should contain local machine names only, not fully qualified domain
+names together with process run instance numbers. For example:
+.sp
+.ce
+sapc13 1
+.ce
+sapc77 1
+.ce
+sapc77 2
+.sp
+would specify that sapc13 has a 
+.I qlrun(1)
+daemon running as instance 1 while sapc77 has two 
+.I qlrun(1) 
+daemons running as instance 1 and 2. The instance number for the
+daemon is specified by the 
+.B -p
+flag to 
+.I qlrun(1)
+
+.sp
+.SH AUTHOR
+Andrew C.R. Martin (andrew@bioinf.org.uk)
+.SH "SEE ALSO"
+QLite(1), qlsubmit(1), qlrun(1), qlshutdown(1), qllockd(1), qlsuspend(1)
+.SH BUGS
+Listing of running jobs doesn't work properly on machines with
+multiple processors where the qlrun daemon is run more than
+once. There needs to be more intelligence in the way the .node.running
+file is created and deleted - including locking!
+
+

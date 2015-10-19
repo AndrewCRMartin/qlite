@@ -1,0 +1,4 @@
+qllist -t could be speeded by stopping it from running GetJobDetails()
+on each file (in DisplayJobs())
+
+Batch files cannot contain aliases as command names
